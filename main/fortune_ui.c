@@ -98,16 +98,17 @@ static void draw_pixel_rect(lv_layer_t *layer, const lv_area_t *base, int x,
 static void draw_bar(lv_layer_t *layer, const lv_area_t *base, int x, int y,
                      int w, bool yang) {
     if (yang) {
-        draw_pixel_rect(layer, base, x, y, w, 12, COLOR_INK, 6);
+        draw_pixel_rect(layer, base, x, y, w, 10, COLOR_INK, 5);
     } else {
         int seg = (w - 8) / 2;
-        draw_pixel_rect(layer, base, x, y, seg, 12, COLOR_INK, 6);
-        draw_pixel_rect(layer, base, x + w - seg, y, seg, 12, COLOR_INK, 6);
+        draw_pixel_rect(layer, base, x, y, seg, 10, COLOR_INK, 5);
+        draw_pixel_rect(layer, base, x + w - seg, y, seg, 10, COLOR_INK, 5);
     }
 }
 
-// 卦画像素画（层 112x72）：上卦、下卦两柱左右并排（上卦在左，与卦名
+// 卦画像素画（层 128x58）：上卦、下卦两柱左右并排（上卦在左，与卦名
 // 读序一致），柱内自上而下为上爻在顶；外围一圈鎏金细框。
+// 爻段修长（阳爻 54x10），避免短粗变形。
 static void bars_draw_cb(lv_event_t *event) {
     if (!s_hex) return;
     lv_obj_t *obj = lv_event_get_current_target(event);
@@ -115,11 +116,11 @@ static void bars_draw_cb(lv_event_t *event) {
     lv_area_t base;
     lv_obj_get_coords(obj, &base);
 
-    const int ROW_H = 12;
+    const int ROW_H = 10;
     const int ROW_GAP = 10;
-    const int COL_W = 44;
+    const int COL_W = 54;
     const int COL_GAP = 8;
-    const int PAD = 8;
+    const int PAD = 4;
     // 柱内行序：上爻在顶。上卦 = 四、五、上爻；下卦 = 初、二、三爻。
     static const uint8_t UPPER_LINES[3] = { 5, 4, 3 };
     static const uint8_t LOWER_LINES[3] = { 2, 1, 0 };
@@ -269,7 +270,7 @@ static void build_result_page(void) {
     s_result_num = make_label(s_result_page, &app_font_24, COLOR_DIM);
     lv_obj_set_pos(s_result_num, 0, 16);
 
-    s_result_bars = make_blank_obj(s_result_page, 64, 52, 112, 72);
+    s_result_bars = make_blank_obj(s_result_page, 58, 58, 124, 58);
     lv_obj_add_event_cb(s_result_bars, bars_draw_cb, LV_EVENT_DRAW_MAIN, NULL);
 
     s_result_name = make_label(s_result_page, &app_font_48, COLOR_INK);
