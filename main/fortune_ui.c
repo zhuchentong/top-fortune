@@ -120,7 +120,7 @@ static void bars_draw_cb(lv_event_t *event) {
     const int ROW_GAP = 10;
     const int COL_W = 54;
     const int COL_GAP = 8;
-    const int PAD = 4;
+    const int PAD = 10;
     // 柱内行序：上爻在顶。上卦 = 四、五、上爻；下卦 = 初、二、三爻。
     static const uint8_t UPPER_LINES[3] = { 5, 4, 3 };
     static const uint8_t LOWER_LINES[3] = { 2, 1, 0 };
@@ -270,7 +270,7 @@ static void build_result_page(void) {
     s_result_num = make_label(s_result_page, &app_font_24, COLOR_DIM);
     lv_obj_set_pos(s_result_num, 0, 16);
 
-    s_result_bars = make_blank_obj(s_result_page, 58, 58, 124, 58);
+    s_result_bars = make_blank_obj(s_result_page, 52, 52, 136, 70);
     lv_obj_add_event_cb(s_result_bars, bars_draw_cb, LV_EVENT_DRAW_MAIN, NULL);
 
     s_result_name = make_label(s_result_page, &app_font_48, COLOR_INK);
