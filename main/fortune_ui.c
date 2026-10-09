@@ -31,8 +31,8 @@ LV_FONT_DECLARE(app_font_24);
 #define BATTERY_PERIOD_MS 30000
 #define SHAKE_DURATION_MS 2600
 #define SWAY_PERIOD_MS 640
-#define SWAY_ANGLE 750           // 0.1 度单位，±7.5 度
-#define DETAIL_SCROLL_STEP 40
+#define SWAY_ANGLE 300           // 0.1 度单位，±3 度
+#define DETAIL_PAGE_STEP 276     // 滚动容器可视高度，一按翻一页
 
 typedef enum {
     UI_IDLE = 0,  // 待机：按 OK 摇签
@@ -94,8 +94,20 @@ static void draw_pixel_rect(lv_layer_t *layer, const lv_area_t *base, int x,
     lv_draw_rect(layer, &dsc, &area);
 }
 
-// 卦画像素画（层 112x98，爻区四周留 4px）：上爻在上、初爻在下；
-// 阳爻整条圆角，阴爻两段圆角；外围一圈鎏金细框。
+// 单个爻段：阳爻整条圆角，阴爻两段圆角（中空 8px）。
+static void draw_bar(lv_layer_t *layer, const lv_area_t *base, int x, int y,
+                     int w, bool yang) {
+    if (yang) {
+        draw_pixel_rect(layer, base, x, y, w, 12, COLOR_INK, 6);
+    } else {
+        int seg = (w - 8) / 2;
+        draw_pixel_rect(layer, base, x, y, seg, 12, COLOR_INK, 6);
+        draw_pixel_rect(layer, base, x + w - seg, y, seg, 12, COLOR_INK, 6);
+    }
+}
+
+// 卦画像素画（层 112x72）：上卦、下卦两柱左右并排（上卦在左，与卦名
+// 读序一致），柱内自上而下为上爻在顶；外围一圈鎏金细框。
 static void bars_draw_cb(lv_event_t *event) {
     if (!s_hex) return;
     lv_obj_t *obj = lv_event_get_current_target(event);
@@ -103,18 +115,20 @@ static void bars_draw_cb(lv_event_t *event) {
     lv_area_t base;
     lv_obj_get_coords(obj, &base);
 
-    const int ROW_H = 10;
-    const int ROW_GAP = 8;
-    const int PAD = 4;
-    for (uint8_t row = 0; row < FORTUNE_LINE_COUNT; row++) {
-        uint8_t line = FORTUNE_LINE_COUNT - 1U - row; // 上爻画在最上
-        int y = PAD + (int)row * (ROW_H + ROW_GAP);
-        if (fortune_line_yang(s_hex, line)) {
-            draw_pixel_rect(layer, &base, PAD, y, 104, ROW_H, COLOR_INK, 5);
-        } else {
-            draw_pixel_rect(layer, &base, PAD, y, 44, ROW_H, COLOR_INK, 5);
-            draw_pixel_rect(layer, &base, 64, y, 44, ROW_H, COLOR_INK, 5);
-        }
+    const int ROW_H = 12;
+    const int ROW_GAP = 10;
+    const int COL_W = 44;
+    const int COL_GAP = 8;
+    const int PAD = 8;
+    // 柱内行序：上爻在顶。上卦 = 四、五、上爻；下卦 = 初、二、三爻。
+    static const uint8_t UPPER_LINES[3] = { 5, 4, 3 };
+    static const uint8_t LOWER_LINES[3] = { 2, 1, 0 };
+    for (int row = 0; row < 3; row++) {
+        int y = PAD + row * (ROW_H + ROW_GAP);
+        draw_bar(layer, &base, PAD, y, COL_W,
+                 fortune_line_yang(s_hex, UPPER_LINES[row]));
+        draw_bar(layer, &base, PAD + COL_W + COL_GAP, y, COL_W,
+                 fortune_line_yang(s_hex, LOWER_LINES[row]));
     }
 
     // 鎏金纸窗式边框。
@@ -255,15 +269,15 @@ static void build_result_page(void) {
     s_result_num = make_label(s_result_page, &app_font_24, COLOR_DIM);
     lv_obj_set_pos(s_result_num, 0, 16);
 
-    s_result_bars = make_blank_obj(s_result_page, 64, 46, 112, 98);
+    s_result_bars = make_blank_obj(s_result_page, 64, 52, 112, 72);
     lv_obj_add_event_cb(s_result_bars, bars_draw_cb, LV_EVENT_DRAW_MAIN, NULL);
 
     s_result_name = make_label(s_result_page, &app_font_48, COLOR_INK);
-    lv_obj_set_pos(s_result_name, 0, 148);
+    lv_obj_set_pos(s_result_name, 0, 134);
     lv_obj_set_style_text_letter_space(s_result_name, 4, 0);
 
     // 吉凶徽章：垂直渐变 + 轻阴影，等级色在刷新时应用。
-    s_result_badge = make_blank_obj(s_result_page, 60, 212, 120, 36);
+    s_result_badge = make_blank_obj(s_result_page, 60, 200, 120, 36);
     lv_obj_set_style_radius(s_result_badge, 18, 0);
     lv_obj_set_style_bg_opa(s_result_badge, LV_OPA_COVER, 0);
     lv_obj_set_style_shadow_width(s_result_badge, 8, 0);
@@ -388,7 +402,7 @@ static void set_page(ui_page_t page) {
 // 摇签流程
 // ---------------------------------------------------------------------------
 
-// 摆动动画：以签筒底部为轴做 ±7.5 度缓入缓出摆动。
+// 摆动动画：以签筒底部为轴做 ±3 度缓入缓出摆动。
 static void sway_anim_cb(void *var, int32_t angle) {
     lv_image_set_rotation((lv_obj_t *)var, angle);
 }
@@ -471,8 +485,8 @@ void fortune_ui_on_key(bsp_btn_t btn, bsp_btn_ev_t ev) {
             int32_t cur = lv_obj_get_scroll_y(s_detail_scroll);
             int32_t bottom = lv_obj_get_scroll_bottom(s_detail_scroll);
             int32_t target = btn == BSP_BTN_DOWN
-                                 ? cur + DETAIL_SCROLL_STEP
-                                 : cur - DETAIL_SCROLL_STEP;
+                                 ? cur + DETAIL_PAGE_STEP
+                                 : cur - DETAIL_PAGE_STEP;
             if (target > bottom) target = bottom;
             if (target < 0) target = 0;
             if (target != cur) {
