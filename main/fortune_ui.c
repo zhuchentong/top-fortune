@@ -30,8 +30,8 @@ LV_FONT_DECLARE(app_font_24);
 
 #define BATTERY_PERIOD_MS 30000
 #define SHAKE_DURATION_MS 2600
-#define SWAY_PERIOD_MS 640
-#define SWAY_ANGLE 300           // 0.1 度单位，±3 度
+#define SWAY_PERIOD_MS 280
+#define SWAY_ANGLE 150           // 0.1 度单位，±1.5 度
 #define DETAIL_PAGE_STEP 276     // 滚动容器可视高度，一按翻一页
 
 typedef enum {
@@ -402,7 +402,7 @@ static void set_page(ui_page_t page) {
 // 摇签流程
 // ---------------------------------------------------------------------------
 
-// 摆动动画：以签筒底部为轴做 ±3 度缓入缓出摆动。
+// 摆动动画：以签筒底部为轴做 ±1.5 度快速小幅摆动。
 static void sway_anim_cb(void *var, int32_t angle) {
     lv_image_set_rotation((lv_obj_t *)var, angle);
 }
