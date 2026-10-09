@@ -33,6 +33,8 @@
 | [`images/readme-hardware-specs.png`](images/readme-hardware-specs.png) | 2172 × 724，PNG RGBA | 保留为可选技术参考图，不再用于首页主视觉。于 2026-09-17 使用内置图像生成工具为本仓库生成；已根据文档中的硬件能力契约核对图中的六项标签与参数。 |
 | [`images/logo-wordmark.png`](images/logo-wordmark.png) | 1648 × 336，PNG RGBA | 从仓库原始 `images/logo.png` 中精确裁切并去除背景的黑色字标；用于中英文项目 README 的浅色主题。 |
 | [`images/logo-wordmark-dark.png`](images/logo-wordmark-dark.png) | 1648 × 336，PNG RGBA | 提取字标的白色版本；README 使用 `<picture>` 在 GitHub 深色主题下显示。 |
+| [`images/generate_images.py`](images/generate_images.py) | 仓库脚本 | 用 Pillow 以 4 倍超采样绘制上上签签筒插画，生成 [`images/fortune_img.c`](images/fortune_img.c)：`python3 assets/images/generate_images.py`。 |
+| [`images/fortune_img.c`](images/fortune_img.c) | 120 × 132，LVGL9 RGB565A8（含 alpha 面），约 46KB 只读数据 | 由上述脚本生成；请勿手改。在 `main/CMakeLists.txt` 注册，用于上上签待机页与摇签动画页。 |
 
 - 使用描述性命名，并记录尺寸、像素格式、转换步骤与目标路径。
 - 优先采用适合 240 × 320 RGB565 显示的格式，并纳入 Flash 与内部 RAM 考量。

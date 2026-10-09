@@ -12,6 +12,7 @@
 #define FORTUNE_TXT_PRESS_OK         "按 OK 摇签"
 #define FORTUNE_TXT_SHAKING          "诚心摇签…"
 #define FORTUNE_TXT_NO_FMT           "第 %d 卦"
+#define FORTUNE_TXT_FULL_NO_FMT      "%s · 第 %d 卦"
 #define FORTUNE_TXT_SEE_DETAIL       "按 OK 解签"
 #define FORTUNE_TXT_GUOCI_LABEL      "卦辞"
 #define FORTUNE_TXT_BAIHUA_LABEL     "白话解签"
