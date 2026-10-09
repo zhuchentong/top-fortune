@@ -15,6 +15,14 @@
 - 添加字库前评估 Flash 与内部 RAM 影响；ESP32-C3 无 PSRAM。
 - 不提交许可不允许分发的字库。
 
+| 文件 | 来源与许可 | 用途 |
+| --- | --- | --- |
+| [`fonts/SourceHanSansSC-Regular.otf`](fonts/SourceHanSansSC-Regular.otf) | Source Han Sans SC Regular 2.004R，SIL Open Font License 1.1（[`fonts/LICENSE.txt`](fonts/LICENSE.txt)，[adobe-fonts/source-han-sans](https://github.com/adobe-fonts/source-han-sans/releases/tag/2.004R)） | 上上签应用子集字库的源字体；OFL 许可允许再分发。 |
+| [`fonts/collect_chars.py`](fonts/collect_chars.py) | 仓库脚本 | 扫描 `main/` 界面文案源码中的字符串字面量，生成码点清单 `fonts/fortune_chars.txt`（全量）与 `fonts/fortune_chars_48.txt`（48px：仅标题与卦名）。 |
+| [`fonts/fortune_chars.txt`](fonts/fortune_chars.txt)、[`fonts/fortune_chars_48.txt`](fonts/fortune_chars_48.txt) | 由上述脚本生成 | 上上签界面全部渲染字符的码点清单；由 `tests/test_fortune_text.c` 强制校验覆盖。 |
+| [`fonts/generate_fonts.sh`](fonts/generate_fonts.sh) | 仓库脚本 | 以固定版本 `lv_font_conv@1.5.3` 重新生成 LVGL 子集字库（需要 node/npx）：`./assets/fonts/generate_fonts.sh`。 |
+| [`fonts/app_font_48.c`](fonts/app_font_48.c)、[`fonts/app_font_24.c`](fonts/app_font_24.c) | 由上述脚本生成；请勿手改 | LVGL 48px / 24px、4bpp、未压缩子集，覆盖 ASCII 0x20-0x7E 及清单码点；在 `main/CMakeLists.txt` 注册，由上上签界面选用。Flash 占用约 141KB（48px）与 189KB（24px）只读数据。 |
+
 ## 图片（images）
 
 可复用的源图与生成的显示资产放在 `images/`。
